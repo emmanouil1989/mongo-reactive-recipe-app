@@ -26,16 +26,14 @@ public class IngredientServiceImpl implements IngredientService {
     private final IngredientCommandToIngredient ingredientCommandToIngredient;
     private final RecipeReactiveRepository recipeReactiveRepository;
     private final UnitOfMeasureReactiveRepository unitOfMeasureRepository;
-    private final RecipeRepository recipeRepository1;
 
     public IngredientServiceImpl(IngredientToIngredientCommand ingredientToIngredientCommand,
                                  IngredientCommandToIngredient ingredientCommandToIngredient,
-                                 RecipeReactiveRepository recipeReactiveRepository, UnitOfMeasureReactiveRepository unitOfMeasureRepository, RecipeRepository recipeRepository1) {
+                                 RecipeReactiveRepository recipeReactiveRepository, UnitOfMeasureReactiveRepository unitOfMeasureRepository) {
         this.ingredientToIngredientCommand = ingredientToIngredientCommand;
         this.ingredientCommandToIngredient = ingredientCommandToIngredient;
         this.recipeReactiveRepository = recipeReactiveRepository;
         this.unitOfMeasureRepository = unitOfMeasureRepository;
-        this.recipeRepository1 = recipeRepository1;
     }
 
     @Override
@@ -150,8 +148,8 @@ public class IngredientServiceImpl implements IngredientService {
 
         log.debug("Deleting ingredient: " + recipeId + ":" + idToDelete);
 
-      // Recipe recipe1 = recipeRepository.findById(recipeId).block();
-       Recipe recipe = recipeRepository1.findById(recipeId).get();
+       Recipe recipe = recipeReactiveRepository.findById(recipeId).block();
+
         if (recipeId != null){
             log.debug("found recipe");
 
@@ -166,7 +164,7 @@ public class IngredientServiceImpl implements IngredientService {
                 Ingredient ingredientToDelete = ingredientOptional.get();
                // ingredientToDelete.setRecipe(null);
                 recipe.getIngredients().remove(ingredientOptional.get());
-                recipeRepository1.save(recipe);
+                recipeReactiveRepository.save(recipe).block();
             }
         } else {
             log.debug("Recipe Id Not found. Id:" + recipeId);
